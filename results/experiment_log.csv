@@ -1,0 +1,16 @@
+,name,hypothesis,Cost / wafer,ROC-AUC,parent,Folds cheaper than parent,Late cost,Late ROC-AUC,verdict,late vs parent
+E1,Majority baseline,"Sets the floor: balanced accuracy 0.500, recall 0, cost about 0.66 per wafer",0.6636820577521826,0.5,,,0.5431309904153354,0.5,,
+E2,"LR, standardized","The sensors carry enough signal to beat the baseline, but extreme readings (up to 40 SD) make the risks overconfident",0.5679330904946989,0.686695564475732,E1,25.0,0.5079872204472844,0.6945548489666137,keep,better
+E3,"LR, quantile transform","Bounding extreme readings and removing skew gives honest risks, so the same threshold catches more failures at lower cost",0.5365267292077898,0.6947238032900757,E2,17.0,0.48242811501597443,0.6746820349761526,keep,better
+E4,"Random forest, calibrated","Trees ignore scale and outliers and can combine sensors; if failures depend on combinations, the forest beats E3",0.5102566085346248,0.7418374865585112,E3,18.0,0.5878594249201278,0.5490858505564388,keep,worse
+E5a,"LR, top-k sensors",Dropping the ~430 noise sensors helps the linear model,0.5412331861378482,0.688527378336439,E3,6.0,0.5686900958466453,0.5691573926868044,reject,worse
+E5c,"LR, L1 penalty",An L1 penalty picks a few sensors from groups of near-copies and generalises better than L2,0.5302903888809752,0.704393072540625,E3,12.0,0.5623003194888179,0.6426868044515104,no clear gain,worse
+E5b,"Random forest, top-k sensors",Dropping the noise sensors lets the forest's splits find the useful ones,0.5106363321869722,0.7362688431303139,E4,11.0,0.5399361022364217,0.666335453100159,reject,better
+E6,"Random forest, tuned max_features",Letting each split see more sensors improves the forest's ranking,0.5027451618811176,0.7477102961246213,E4,9.0,0.5559105431309904,0.5389507154213037,no clear gain,better
+E7a,Average of E3 and E4,"Linear and tree models make different errors, so their average beats both",0.5105101646283142,0.7347753340056861,E4,12.0,0.4696485623003195,0.6430842607313195,reject,better
+E7b,Average of E5c and E6,"Same, with the best variant of each family (optimistic: chosen on the same folds)",0.48997374900795665,0.7389088294160995,E4,16.0,0.5303514376996805,0.6206279809220986,keep,better
+E8a,"LR, quantile, detrended (W=200)",Removing sensor drift improves the late-wafer result of the linear model,0.590900470075904,0.6407785221152841,E3,4.0,0.5846645367412141,0.630564387917329,reject,worse
+E8b,"Random forest, detrended (W=200)",Removing sensor drift fixes the forest's collapse on late wafers,0.5498129871186992,0.7068521670017297,E4,7.0,0.6134185303514377,0.5214626391096979,reject,worse
+E8-W100,"LR, quantile, detrended (W=100)",Sensitivity check of the drift window,0.6271728292057548,0.6199273948113072,E3,3.0,0.597444089456869,0.6208267090620032,reject,worse
+E8-W400,"LR, quantile, detrended (W=400)",Sensitivity check of the drift window,0.5796768482529863,0.6613678548608654,E3,4.0,0.5527156549520766,0.6297694753577107,reject,worse
+E9,"Gradient boosting, calibrated",Shallow boosted trees capture sparse interactions better than a forest,0.5380952768563929,0.7226578592912689,E4,9.0,0.5207667731629393,0.6281796502384738,reject,better
